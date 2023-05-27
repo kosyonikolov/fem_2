@@ -157,6 +157,37 @@ function newton1(fem::QuasiFem, qPrev::AbstractArray, qCurr::AbstractArray, τ::
     return qCurr, !maxItersIsFail
 end
 
+# Solve CN system using Newton's method
+# Calculate the Jacobi matrix at every iteration
+function newton2(fem::QuasiFem, qPrev::AbstractArray, qCurr::AbstractArray, τ::Number;
+                 maxIters::Integer = 10, minErr::Number = 1e-3, 
+                 maxItersIsFail::Bool = false, dbgPrint::Bool = false)
+    f = x -> crankNicolsonLhs(fem, qPrev, x, τ)
+
+    lastErr = norm(f(qCurr))
+    if dbgPrint
+        println("Start = $lastErr")
+    end
+
+    for i in 1:maxIters
+        j = jacobi(f, qCurr)
+        qNew = j \ (j * qCurr - f(qCurr)) 
+        newErr = norm(f(qNew))
+        if dbgPrint
+            println("Iter $i = $newErr")
+        end
+
+        if newErr >= lastErr
+            return qCurr, false
+        elseif newErr < minErr
+            return qNew, true
+        end
+        qCurr = qNew
+        lastErr = newErr
+    end
+    return qCurr, !maxItersIsFail
+end
+
 function solveCnNewton(fem::QuasiFem, Tmax::Number, τ::Number)
     nT = ceil(Int, Tmax / τ)
     ts = range(0, Tmax, nT)
@@ -193,7 +224,7 @@ function solveCnNewtonAdaptive(fem::QuasiFem, Tmax::Number, τMax::Number; τMin
         firstGood = true
 
         while true
-            curr, ok = newton1(fem, prev, cprev, τ, minErr = 1e-2, maxIters = 5, maxItersIsFail = true)
+            curr, ok = newton2(fem, prev, cprev, τ, minErr = 1e-2, maxIters = 5, maxItersIsFail = true)
             if ok || τ <= τMin
                 break
             end
