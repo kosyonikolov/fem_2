@@ -27,14 +27,14 @@
 
 \section{Дискретизация по простанството}
 Умножаваме скаларно двете уравнение с функция $v \in H_1$:
-\[ \left(\frac{\partial N}{\partial t}, v\right) - (\Delta N, v) + (N, v) - \frac{1}{0.4} (N^2, v) - (Q, v) = 0\]
-\[ \left(\frac{\partial P}{\partial t}, v\right) - (\Delta P, v) - 0.2(P, v) + (Q, v) = 0\]
+\[ \left(\frac{\partial N}{\partial t}, v\right) - (\Delta N, v) - (N, v) + \frac{1}{0.4} (N^2, v) + (Q, v) = 0\]
+\[ \left(\frac{\partial P}{\partial t}, v\right) - (\Delta P, v) + 0.2(P, v) - (Q, v) = 0\]
 \[ Q(N, P) = \frac{0.5 NP}{0.5 + N}\]
 
 Имаме хомогенни условия на Нойман за $N$ и $P \Rightarrow (\Delta N, v) = (\nabla N, \nabla v), (\Delta P, v) = (\nabla P, \nabla v)$. 
 Тогава системата ни става
-\[ \left(\frac{\partial N}{\partial t}, v\right) - (\nabla N, \nabla v) + (N, v) - \left(\frac{N^2}{0.4}  + Q, v\right) = 0\]
-\[ \left(\frac{\partial P}{\partial t}, v\right) - (\nabla P, \nabla v) - 0.2(P, v) + (Q, v) = 0\]
+\[ \left(\frac{\partial N}{\partial t}, v\right) - (\nabla N, \nabla v) - (N, v) + \left(\frac{N^2}{0.4}  + Q, v\right) = 0\]
+\[ \left(\frac{\partial P}{\partial t}, v\right) - (\nabla P, \nabla v) + 0.2(P, v) - (Q, v) = 0\]
 
 Нека областта $\Omega$ е дискретизирана с мрежата $\mathcal{K}$, на чиито възли съотвестват базисните функции
 $\{\varphi_i\}_0^M$. Ще търсим приближени решения във вида
@@ -50,12 +50,12 @@ Q_{1h} = \sum_{i=0}^M Q_1(q_{Ni}, q_{Pi}) \varphi_i \]
 
 Остава да запишем вариационните уравнения за приближението решение. Базисните функции не зависят от $t$ - можем да
 извадим $q$-тата от първия член:
-\[ \sum_{i=0}^M \frac{\partial q_{Ni}(t)}{\partial t} (\varphi_i, \varphi_j) - \sum_{i=0}^M q_{Ni}(t) (\nabla \varphi_i, \nabla \varphi_j) + \sum_{i=0}^M q_{Ni}(t) (\varphi_i, \varphi_j) - \sum_{i=0}^M Q_1(q_{Ni}, q_{Pi})(\varphi_i, \varphi_j) = 0\]
-\[ \sum_{i=0}^M \frac{\partial q_{Pi}(t)}{\partial t} (\varphi_i, \varphi_j) - \sum_{i=0}^M q_{Pi}(t) (\nabla \varphi_i, \nabla \varphi_j) - 0.2\sum_{i=0}^M q_{Pi}(t) (\varphi_i, \varphi_j) + \sum_{i=0}^M Q(q_{Ni}, q_{Pi})(\varphi_i, \varphi_j) = 0\]
+\[ \sum_{i=0}^M \frac{\partial q_{Ni}(t)}{\partial t} (\varphi_i, \varphi_j) - \sum_{i=0}^M q_{Ni}(t) (\nabla \varphi_i, \nabla \varphi_j) - \sum_{i=0}^M q_{Ni}(t) (\varphi_i, \varphi_j) + \sum_{i=0}^M Q_1(q_{Ni}, q_{Pi})(\varphi_i, \varphi_j) = 0\]
+\[ \sum_{i=0}^M \frac{\partial q_{Pi}(t)}{\partial t} (\varphi_i, \varphi_j) - \sum_{i=0}^M q_{Pi}(t) (\nabla \varphi_i, \nabla \varphi_j) + 0.2\sum_{i=0}^M q_{Pi}(t) (\varphi_i, \varphi_j) - \sum_{i=0}^M Q(q_{Ni}, q_{Pi})(\varphi_i, \varphi_j) = 0\]
 
 Това трябва да е изпълнено за всяко $j \in [0, \dots, M] \Rightarrow$ можем да запишем системата в матричен вид:
-\[ M_0 \frac{\partial \pmb{q}_{N}}{\partial t} - M_1 \pmb{q}_N + M_0 (\pmb{q}_N - \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P)) = 0\]
-\[ M_0 \frac{\partial \pmb{q}_{P}}{\partial t} - M_1 \pmb{q}_P + M_0 (-0.2 \pmb{q}_P + \pmb{Q}(\pmb{q}_N, \pmb{q}_P)) = 0\]
+\[ M_0 \frac{\partial \pmb{q}_{N}}{\partial t} - M_1 \pmb{q}_N + M_0 (-\pmb{q}_N + \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P)) = 0\]
+\[ M_0 \frac{\partial \pmb{q}_{P}}{\partial t} - M_1 \pmb{q}_P + M_0 (0.2 \pmb{q}_P - \pmb{Q}(\pmb{q}_N, \pmb{q}_P)) = 0\]
 
 Тук $M_0$ и $M_1$ са стандартните матрици на маса и коравина. 
 
@@ -64,12 +64,12 @@ Q_{1h} = \sum_{i=0}^M Q_1(q_{Ni}, q_{Pi}) \varphi_i \]
 конкатенецията на двата вектора с възлови неизвестни. Тогава можем да запишем системата в блочна форма:
 \[ \begin{pmatrix} M_0 & \pmb{0} \\ \pmb{0} & M_0 \end{pmatrix} \frac{\partial \pmb{q}}{\partial t}
 -  \begin{pmatrix} M_1 & \pmb{0} \\ \pmb{0} & M_1 \end{pmatrix} \pmb{q} 
-+ \begin{pmatrix} M_0 & \pmb{0} \\ \pmb{0} & M_0 \end{pmatrix} \begin{pmatrix} \pmb{q}_N - \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P) \\ -0.2 \pmb{q}_P + \pmb{Q}(\pmb{q}_N, \pmb{q}_P) \end{pmatrix} = \pmb{0} \]
++ \begin{pmatrix} M_0 & \pmb{0} \\ \pmb{0} & M_0 \end{pmatrix} \begin{pmatrix} -\pmb{q}_N + \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P) \\ 0.2 \pmb{q}_P - \pmb{Q}(\pmb{q}_N, \pmb{q}_P) \end{pmatrix} = \pmb{0} \]
 
 Въвеждаме допълнителни означения:
 \[ M_0^* = \begin{pmatrix} M_0 & \pmb{0} \\ \pmb{0} & M_0 \end{pmatrix} \hspace{10mm}
 M_1^* = \begin{pmatrix} M_1 & \pmb{0} \\ \pmb{0} & M_1 \end{pmatrix} \hspace{10mm}
-\pmb{r}(\pmb{q}) = \begin{pmatrix} \pmb{q}_N - \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P) \\ -0.2 \pmb{q}_P + \pmb{Q}(\pmb{q}_N, \pmb{q}_P) \end{pmatrix} \]
+\pmb{r}(\pmb{q}) = \begin{pmatrix}  -\pmb{q}_N + \pmb{Q}_1(\pmb{q}_N, \pmb{q}_P) \\ 0.2 \pmb{q}_P - \pmb{Q}(\pmb{q}_N, \pmb{q}_P) \end{pmatrix} \]
 
 Така съкратихме системата до 
 \[ M_0^* \frac{\partial \pmb{q}}{\partial t} - M_1^* \pmb{q} + M_0^* \pmb{r}(\pmb{q}) = \pmb{0}  \]
@@ -86,8 +86,8 @@ M_1^* = \begin{pmatrix} M_1 & \pmb{0} \\ \pmb{0} & M_1 \end{pmatrix} \hspace{10m
 Системата е нелинейна заради реакционния член $\pmb{r}$ и ще трябва да се ползва итеративен метод за решаване на всеки слой по времето.
 Хубавото е, че матриците са константни и трябва да ги сметнем само веднъж. За пълнота, нека запишем и явният вид на $\pmb{r}$:
 \[ \pmb{r}(\pmb{q}) = \begin{pmatrix} 
-    \pmb{q}_N - \dfrac{0.5 \pmb{q}_N \cdot \pmb{q}_P}{0.5 + \pmb{q}_N} - \dfrac{\pmb{q}_N^2}{0.4} \\[5mm]
-    -0.2 \pmb{q}_P + \dfrac{0.5 \pmb{q}_N \cdot \pmb{q}_P}{0.5 + \pmb{q}_N} 
+-\pmb{q}_N + \dfrac{0.5 \pmb{q}_N \cdot \pmb{q}_P}{0.5 + \pmb{q}_N} + \dfrac{\pmb{q}_N^2}{0.4} \\[5mm]
+0.2 \pmb{q}_P - \dfrac{0.5 \pmb{q}_N \cdot \pmb{q}_P}{0.5 + \pmb{q}_N} 
 \end{pmatrix} \]
 Умножението, делението и вдигането на степен на векторите тук са поелементни.
 
