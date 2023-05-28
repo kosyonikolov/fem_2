@@ -15,6 +15,15 @@ struct QuasiFem
     m1::AbstractArray
 end
 
+struct QSolution
+    h::Number
+    pts::AbstractArray
+    elements::AbstractArray
+    ts::AbstractArray # Layer times
+    qs::AbstractArray # Layers
+    steps::AbstractArray # Time steps
+end
+
 function setupEquation(ptsPerAxis::Integer) :: QuasiFem
     pts, elems = makeGrid(ptsPerAxis)
     h = pts[2,1] - pts[1,1]
@@ -205,7 +214,7 @@ function solveCnNewton(fem::QuasiFem, Tmax::Number, τ::Number)
     return ts, qs
 end
 
-function solveCnNewtonAdaptive(fem::QuasiFem, Tmax::Number, τMax::Number; τMin::Number = 1e-7, λ::Number = 2)
+function solveCnNewtonAdaptive(fem::QuasiFem, Tmax::Number, τMax::Number; τMin::Number = 1e-10, λ::Number = 2)
     qs = [Float64.(initialQ(fem.pts))]
     steps = [] # Time steps
     ts = [0.0]
@@ -223,14 +232,22 @@ function solveCnNewtonAdaptive(fem::QuasiFem, Tmax::Number, τMax::Number; τMin
         curr = missing
         firstGood = true
 
+        println("$t")
         while true
             curr, ok = newton2(fem, prev, cprev, τ, minErr = 1e-2, maxIters = 5, maxItersIsFail = true)
             if ok || τ <= τMin
                 break
             end
             firstGood = false
+            if τ == τMin
+                println("Reached min step at t = $t, which is bad")
+                break
+            end
             τ = max(τMin, τ / λ)
         end
+
+        # Zero all the values that went under
+        curr[curr .< 0] .= 0
 
         push!(qs, curr)
         push!(steps, τ)
@@ -251,4 +268,22 @@ function solveCnNewtonAdaptive(fem::QuasiFem, Tmax::Number, τMax::Number; τMin
     end
 
     return ts, qs, steps
+end
+
+function solveQuasiLinearHeatEquation(nH::Integer = 15; Tmax::Number = 0.18, τMax::Number = 1.0 / 480)::QSolution
+    fem = setupEquation(nH)
+    ts, qs, steps = solveCnNewtonAdaptive(fem, Tmax, τMax)
+    sol = QSolution(fem.h, fem.pts, fem.elements, ts, qs, steps)
+    return sol
+end
+
+function plotAverages(sols::AbstractArray{QSolution})
+    function layerAverage(q::AbstractArray)
+        return sum(q) / lastindex(q)
+    end
+    p = plot(sols[1].ts, map(layerAverage, sols[1].qs), label = sols[1].h)
+    for i in 2:lastindex(sols)
+        plot!(p, sols[i].ts, map(layerAverage, sols[i].qs), label = sols[i].h)
+    end
+    return p
 end
